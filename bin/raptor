@@ -1,0 +1,20 @@
+#!/usr/bin/env racket
+#lang racket
+
+(define racket-path (find-executable-path "racket"))
+(define raco-path (find-executable-path "raco"))
+
+(define (usage)
+  (display "usage: raptor [command]\n"))
+
+(define (run bin)
+  (system* racket-path (string-append "bin/" bin) #:set-pwd? #t))
+
+(define (test)
+  (system* raco-path "test" "." #:set-pwd? #t))
+
+(match (current-command-line-arguments)
+  ((vector ) (usage))
+  ((vector "run" bin) (run bin))
+  ((vector "test") (test))
+)
