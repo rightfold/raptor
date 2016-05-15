@@ -38,6 +38,7 @@
     ((vector "test")      (test))
     ((vector "doc")       (doc))
   )
+  (void)
 )
 
 (main)
