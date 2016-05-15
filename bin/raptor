@@ -1,17 +1,27 @@
 #!/usr/bin/env racket
 #lang racket
+(define   racket-path (find-executable-path "racket"))
+(define     raco-path (find-executable-path "raco"))
+(define scribble-path (find-executable-path "scribble"))
 
-(define racket-path (find-executable-path "racket"))
-(define raco-path (find-executable-path "raco"))
+(define (racket   . args) (apply system*   racket-path args #:set-pwd? #t))
+(define (raco     . args) (apply system*     raco-path args #:set-pwd? #t))
+(define (scribble . args) (apply system* scribble-path args #:set-pwd? #t))
 
 (define (help)
   (display "help: raptor [command]\n"))
 
 (define (run bin)
-  (system* racket-path (string-append "bin/" bin) #:set-pwd? #t))
+  (racket (string-append "bin/" bin)))
 
 (define (test)
-  (system* raco-path "test" "." #:set-pwd? #t))
+  (raco "test" "."))
+
+(define (doc)
+  (let* ((doc-files   (directory-list "doc" #:build? #t))
+         (scrbl-files (filter (λ (f) (equal? #"scrbl" (filename-extension f)))
+                              doc-files)))
+    (apply scribble "--dest" "build/doc" scrbl-files)))
 
 (define (set-PLTCOLLECTS)
   (let* ((key "PLTCOLLECTS")
@@ -22,10 +32,11 @@
 (define (main)
   (set-PLTCOLLECTS)
   (match (current-command-line-arguments)
-    ((vector)           (help))
-    ((vector "help")    (help))
-    ((vector "run" bin) (run bin))
-    ((vector "test")    (test))
+    ((vector)             (help))
+    ((vector "help")      (help))
+    ((vector "run" bin)   (run bin))
+    ((vector "test")      (test))
+    ((vector "doc")       (doc))
   )
 )
 
